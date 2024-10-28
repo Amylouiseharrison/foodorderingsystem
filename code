@@ -1,0 +1,118 @@
+# Initialize the food items, their quantities, and prices in pounds using a list of lists
+foods = [
+    ["Pizza", 10, 8.99],
+    ["Burger", 15, 5.99],
+    ["Pasta", 8, 7.99],
+    ["Salad", 12, 4.99],
+    ["Sushi", 5, 12.99],
+    ["Sandwich", 10, 3.99],
+    ["Steak", 4, 15.99],
+    ["Ice Cream", 20, 2.99],
+    ["Fries", 25, 1.99],
+    ["Soup", 6, 4.49]
+]
+
+# Dictionary to keep track of the current order
+current_order = {}
+
+
+# Function to display the menu
+def display_menu():
+    print("\n--- QuickBite Food Ordering System ---")
+    print("1. View Available Food")
+    print("2. Order Food")
+    print("3. View Bill and Checkout")
+    print("4. Exit")
+    print("--------------------------------")
+
+
+# Function to view available food items
+def view_available_food():
+    print("\nAvailable Food Items:")
+    available = False  # To check if at least one item is available
+    for food in foods:  # Loop through the list of food items
+        if food[1] > 0:  # Check if the food item is in stock
+            print(f"- {food[0]}: {food[1]} in stock, £{food[2]:.2f} each")
+            available = True
+    if not available:
+        print("No food items available.")
+
+
+# Function to order multiple food items
+def order_food():
+    print("Enter your order in the format: item:quantity, item:quantity")
+    print("For example: sushi:2, steak:1")
+    order_input = input("Enter your order: ").strip()
+
+    # Split the input by comma to separate each item and quantity pair
+    orders = order_input.split(',')
+
+    for order in orders:
+        # Separate item name and quantity
+        try:
+            food_name, quantity = order.split(':')
+            food_name = food_name.strip().capitalize()  # Format food name and strip whitespace
+            quantity = int(quantity.strip())  # Convert quantity to integer
+        except ValueError:
+            print(f"Invalid format for '{order}'. Please use the format item:quantity.")
+            continue
+
+        # Process the order for each item
+        found = False
+        for food in foods:
+            if food_name.lower() == food[0].lower():  # Check if the food item exists
+                found = True
+                if food[1] >= quantity:  # Check if there's enough in stock
+                    food[1] -= quantity  # Reduce the quantity in stock
+                    # Add to current order or update quantity if already in order
+                    if food_name in current_order:
+                        current_order[food_name][0] += quantity
+                    else:
+                        current_order[food_name] = [quantity, food[2]]
+                    print(f"You have ordered {quantity} of '{food_name}'.")
+                else:
+                    print(f"Insufficient stock. Only {food[1]} '{food_name}' available.")
+                break
+        if not found:
+            print(f"Food item '{food_name}' not found.")
+
+
+# Function to view the bill and checkout
+def view_bill_and_checkout():
+    if not current_order:
+        print("No items in the order.")
+        return
+
+    print("\n--- Your Bill ---")
+    total_cost = 0.0
+    for item, (qty, price) in current_order.items():
+        item_total = qty * price
+        total_cost += item_total
+        print(f"{item}: {qty} x £{price:.2f} = £{item_total:.2f}")
+    print("---------------------")
+    print(f"Total Cost: £{total_cost:.2f}")
+
+    # Clear the order after checkout
+    current_order.clear()
+    print("Thank you for your order! Please proceed to payment.")
+
+
+# Main loop to run the food ordering system
+while True:
+    display_menu()
+
+    # Get user choice
+    choice = input("Enter your choice (1-4): ")
+
+    # Handle each choice using the defined functions
+    if choice == '1':
+        view_available_food()
+    elif choice == '2':
+        order_food()
+    elif choice == '3':
+        view_bill_and_checkout()
+    elif choice == '4':
+        print("Exiting the system. Thank you for visiting QuickBite!")
+        break
+    else:
+        print("Invalid choice. Please select a valid option.")
